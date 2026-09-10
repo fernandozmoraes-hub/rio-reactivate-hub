@@ -211,3 +211,23 @@ export async function agendarContato(clienteId: string, data: string, anotacao?:
   });
   if (intErr) throw intErr;
 }
+
+export async function moverEstagio(clienteId: string, de: string | null, para: string) {
+  const { error } = await supabase
+    .from("clientes")
+    .update({ estagio: para, estagio_atualizado_em: new Date().toISOString() })
+    .eq("id", clienteId);
+  if (error) throw error;
+  const { error: histErr } = await supabase
+    .from("estagio_historico")
+    .insert({ cliente_id: clienteId, de, para });
+  if (histErr) throw histErr;
+}
+
+export async function salvarProximaAcao(clienteId: string, acao: string) {
+  const { error } = await supabase
+    .from("clientes")
+    .update({ proxima_acao: acao || null })
+    .eq("id", clienteId);
+  if (error) throw error;
+}
