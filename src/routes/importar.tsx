@@ -140,22 +140,22 @@ function Importar() {
         }
       }
 
-      const cls = (linha.classificacao || "C").toUpperCase();
+      const cls = (linha["classificacao"] || "C").toUpperCase();
       const classificacao: Classificacao = ["A", "B", "C"].includes(cls)
         ? (cls as Classificacao)
         : "C";
 
       registros.push({
-        nome: linha.nome,
+        nome,
         produtora_id: produtoraId,
-        whatsapp: linha.whatsapp || null,
-        email: linha.email || null,
+        whatsapp: linha["whatsapp"] || null,
+        email: linha["email"] || null,
         classificacao,
-        status: linha.status || "ativo",
-        ultimo_contato: linha.ultimo_contato || null,
-        ultimo_trabalho: linha.ultimo_trabalho || null,
-        ultimo_projeto: linha.ultimo_projeto || null,
-        observacoes: linha.observacoes || null,
+        status: linha["status"] || "ativo",
+        ultimo_contato: linha["ultimo_contato"] || null,
+        ultimo_trabalho: linha["ultimo_trabalho"] || null,
+        ultimo_projeto: linha["ultimo_projeto"] || null,
+        observacoes: linha["observacoes"] || null,
       });
     }
 
