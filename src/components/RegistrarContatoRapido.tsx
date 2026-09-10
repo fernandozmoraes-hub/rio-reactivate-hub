@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CANAIS, registrarContato } from "@/lib/crm";
 
 export function RegistrarContatoRapido({
@@ -30,17 +31,17 @@ export function RegistrarContatoRapido({
   });
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setAberto((v) => !v)}
-        className="rounded-md border border-ink/20 px-3 py-1.5 text-[12px] font-medium text-ink hover:bg-black/5"
-      >
-        Registrar contato
-      </button>
-
-      {aberto && (
-        <div className="absolute right-0 z-30 mt-2 w-64 rounded-lg border border-line bg-surface p-3 text-left shadow-lg ring-1 ring-black/5">
+    <Popover open={aberto} onOpenChange={setAberto}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="rounded-md border border-ink/20 px-3 py-1.5 text-[12px] font-medium text-ink hover:bg-black/5"
+        >
+          Registrar contato
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-64 border-line bg-surface p-3 text-left">
+        <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
             Tipo de contato
           </p>
@@ -86,7 +87,7 @@ export function RegistrarContatoRapido({
             </div>
           </div>
         </div>
-      )}
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }
