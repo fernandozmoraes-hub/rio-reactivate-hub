@@ -21,8 +21,40 @@ export type Cliente = {
   ultimo_projeto: string | null;
   proximo_contato: string | null;
   observacoes: string | null;
+  estagio: string;
+  estagio_atualizado_em: string;
+  proxima_acao: string | null;
   produtoras?: { nome: string } | null;
 };
+
+export const ESTAGIOS = [
+  { id: "reativar", label: "Reativar" },
+  { id: "contato_feito", label: "Contato feito" },
+  { id: "respondeu", label: "Respondeu" },
+  { id: "oportunidade", label: "Oportunidade" },
+  { id: "proposta", label: "Proposta enviada" },
+  { id: "fechado", label: "Fechado" },
+  { id: "arquivado", label: "Sem interesse / Arquivado" },
+] as const;
+
+export const CANAIS = [
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "ligacao", label: "Ligação" },
+  { id: "email", label: "E-mail" },
+  { id: "reuniao", label: "Reunião" },
+] as const;
+
+export const SUGESTOES_ACAO = [
+  "Enviar WhatsApp",
+  "Ligar",
+  "Reenviar proposta",
+  "Oferecer condição",
+  "Agendar conversa",
+] as const;
+
+export function rotuloEstagio(id: string): string {
+  return ESTAGIOS.find((e) => e.id === id)?.label ?? id;
+}
 
 export type Interacao = {
   id: string;
@@ -178,4 +210,24 @@ export async function agendarContato(clienteId: string, data: string, anotacao?:
     anotacao: anotacao ?? "Contato agendado.",
   });
   if (intErr) throw intErr;
+}
+
+export async function moverEstagio(clienteId: string, de: string | null, para: string) {
+  const { error } = await supabase
+    .from("clientes")
+    .update({ estagio: para, estagio_atualizado_em: new Date().toISOString() })
+    .eq("id", clienteId);
+  if (error) throw error;
+  const { error: histErr } = await supabase
+    .from("estagio_historico")
+    .insert({ cliente_id: clienteId, de, para });
+  if (histErr) throw histErr;
+}
+
+export async function salvarProximaAcao(clienteId: string, acao: string) {
+  const { error } = await supabase
+    .from("clientes")
+    .update({ proxima_acao: acao || null })
+    .eq("id", clienteId);
+  if (error) throw error;
 }

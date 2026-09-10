@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { AppShell } from "@/components/AppShell";
 import { ClassChip } from "@/components/ClassChip";
+import { RegistrarContatoRapido } from "@/components/RegistrarContatoRapido";
 import {
   diasSemContato,
   fetchClientes,
@@ -90,7 +91,7 @@ function Reativacao() {
         </span>
       </div>
 
-      <section className="mt-4 overflow-hidden rounded-xl border border-line bg-surface ring-1 ring-black/5">
+      <section className="mt-4 rounded-xl border border-line bg-surface ring-1 ring-black/5">
         <div className="hidden md:grid grid-cols-[1.6fr_1.1fr_0.5fr_0.7fr_1fr_1fr] gap-3 border-b border-line bg-black/[0.02] px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
           <span>Cliente / Produtora</span>
           <span>WhatsApp</span>
@@ -161,6 +162,7 @@ function Reativacao() {
                   </p>
                 </div>
                 <div className="flex justify-end gap-2">
+                  <RegistrarContatoRapido clienteId={c.id} nome={c.nome} />
                   {wa ? (
                     <a
                       href={wa}

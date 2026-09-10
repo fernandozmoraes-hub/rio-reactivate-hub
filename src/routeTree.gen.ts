@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FunilRouteImport } from './routes/funil'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as OfertasRouteImport } from './routes/ofertas'
 import { Route as ClientesIndexRouteImport } from './routes/clientes.index'
@@ -18,6 +19,11 @@ import { Route as ClientesIdRouteImport } from './routes/clientes.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FunilRoute = FunilRouteImport.update({
+  id: '/funil',
+  path: '/funil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportarRoute = ImportarRouteImport.update({
@@ -43,6 +49,7 @@ const ClientesIdRoute = ClientesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/funil': typeof FunilRoute
   '/importar': typeof ImportarRoute
   '/ofertas': typeof OfertasRoute
   '/clientes/$id': typeof ClientesIdRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/funil': typeof FunilRoute
   '/importar': typeof ImportarRoute
   '/ofertas': typeof OfertasRoute
   '/clientes/$id': typeof ClientesIdRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/funil': typeof FunilRoute
   '/importar': typeof ImportarRoute
   '/ofertas': typeof OfertasRoute
   '/clientes/$id': typeof ClientesIdRoute
@@ -65,15 +74,23 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes/'
+  fullPaths:
+    '/' | '/funil' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes'
+  to: '/' | '/funil' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes'
   id:
-    '__root__' | '/' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes/'
+    | '__root__'
+    | '/'
+    | '/funil'
+    | '/importar'
+    | '/ofertas'
+    | '/clientes/$id'
+    | '/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FunilRoute: typeof FunilRoute
   ImportarRoute: typeof ImportarRoute
   OfertasRoute: typeof OfertasRoute
   ClientesIdRoute: typeof ClientesIdRoute
@@ -87,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/funil': {
+      id: '/funil'
+      path: '/funil'
+      fullPath: '/funil'
+      preLoaderRoute: typeof FunilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/importar': {
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FunilRoute: FunilRoute,
   ImportarRoute: ImportarRoute,
   OfertasRoute: OfertasRoute,
   ClientesIdRoute: ClientesIdRoute,
