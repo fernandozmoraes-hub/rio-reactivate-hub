@@ -80,7 +80,7 @@ function Importar() {
       toast.error("Cole ou envie um CSV com cabeçalho e ao menos uma linha.");
       return;
     }
-    const cabecalho = dividirLinha(linhas[0]).map((h) => h.toLowerCase());
+    const cabecalho = dividirLinha(linhas[0] ?? "").map((h) => h.toLowerCase());
     if (!cabecalho.includes("nome")) {
       toast.error('O CSV precisa ter a coluna "nome".');
       return;
@@ -92,22 +92,35 @@ function Importar() {
     const { data: produtoras } = await supabase.from("produtoras").select("id, nome");
     const mapa = new Map((produtoras ?? []).map((p) => [p.nome.toLowerCase(), p.id]));
 
-    const registros: Record<string, unknown>[] = [];
+    type NovoCliente = {
+      nome: string;
+      produtora_id: string | null;
+      whatsapp: string | null;
+      email: string | null;
+      classificacao: Classificacao;
+      status: string;
+      ultimo_contato: string | null;
+      ultimo_trabalho: string | null;
+      ultimo_projeto: string | null;
+      observacoes: string | null;
+    };
+    const registros: NovoCliente[] = [];
 
     for (let i = 1; i < linhas.length; i++) {
-      const valores = dividirLinha(linhas[i]);
+      const valores = dividirLinha(linhas[i] ?? "");
       const linha: Record<string, string> = {};
       cabecalho.forEach((coluna, idx) => {
         linha[coluna] = valores[idx] ?? "";
       });
 
-      if (!linha.nome) {
+      const nome = (linha["nome"] ?? "").trim();
+      if (!nome) {
         problemas.push(`Linha ${i + 1}: sem nome, ignorada.`);
         continue;
       }
 
       let produtoraId: string | null = null;
-      const nomeProdutora = linha.produtora?.trim();
+      const nomeProdutora = (linha["produtora"] ?? "").trim();
       if (nomeProdutora) {
         const existente = mapa.get(nomeProdutora.toLowerCase());
         if (existente) {
