@@ -21,8 +21,40 @@ export type Cliente = {
   ultimo_projeto: string | null;
   proximo_contato: string | null;
   observacoes: string | null;
+  estagio: string;
+  estagio_atualizado_em: string;
+  proxima_acao: string | null;
   produtoras?: { nome: string } | null;
 };
+
+export const ESTAGIOS = [
+  { id: "reativar", label: "Reativar" },
+  { id: "contato_feito", label: "Contato feito" },
+  { id: "respondeu", label: "Respondeu" },
+  { id: "oportunidade", label: "Oportunidade" },
+  { id: "proposta", label: "Proposta enviada" },
+  { id: "fechado", label: "Fechado" },
+  { id: "arquivado", label: "Sem interesse / Arquivado" },
+] as const;
+
+export const CANAIS = [
+  { id: "whatsapp", label: "WhatsApp" },
+  { id: "ligacao", label: "Ligação" },
+  { id: "email", label: "E-mail" },
+  { id: "reuniao", label: "Reunião" },
+] as const;
+
+export const SUGESTOES_ACAO = [
+  "Enviar WhatsApp",
+  "Ligar",
+  "Reenviar proposta",
+  "Oferecer condição",
+  "Agendar conversa",
+] as const;
+
+export function rotuloEstagio(id: string): string {
+  return ESTAGIOS.find((e) => e.id === id)?.label ?? id;
+}
 
 export type Interacao = {
   id: string;
