@@ -19,10 +19,13 @@ export type Database = {
           classificacao: string
           created_at: string
           email: string | null
+          estagio: string
+          estagio_atualizado_em: string
           id: string
           nome: string
           observacoes: string | null
           produtora_id: string | null
+          proxima_acao: string | null
           proximo_contato: string | null
           status: string
           ultimo_contato: string | null
@@ -35,10 +38,13 @@ export type Database = {
           classificacao?: string
           created_at?: string
           email?: string | null
+          estagio?: string
+          estagio_atualizado_em?: string
           id?: string
           nome: string
           observacoes?: string | null
           produtora_id?: string | null
+          proxima_acao?: string | null
           proximo_contato?: string | null
           status?: string
           ultimo_contato?: string | null
@@ -51,10 +57,13 @@ export type Database = {
           classificacao?: string
           created_at?: string
           email?: string | null
+          estagio?: string
+          estagio_atualizado_em?: string
           id?: string
           nome?: string
           observacoes?: string | null
           produtora_id?: string | null
+          proxima_acao?: string | null
           proximo_contato?: string | null
           status?: string
           ultimo_contato?: string | null
@@ -69,6 +78,38 @@ export type Database = {
             columns: ["produtora_id"]
             isOneToOne: false
             referencedRelation: "produtoras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estagio_historico: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          de: string | null
+          id: string
+          para: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          de?: string | null
+          id?: string
+          para: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          de?: string | null
+          id?: string
+          para?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estagio_historico_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
             referencedColumns: ["id"]
           },
         ]
