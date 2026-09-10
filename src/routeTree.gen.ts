@@ -9,148 +9,206 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as FunilRouteImport } from './routes/funil'
-import { Route as ImportarRouteImport } from './routes/importar'
-import { Route as OfertasRouteImport } from './routes/ofertas'
-import { Route as ClientesIndexRouteImport } from './routes/clientes.index'
-import { Route as ClientesIdRouteImport } from './routes/clientes.$id'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
+import { Route as AuthenticatedImportarRouteImport } from './routes/_authenticated/importar'
+import { Route as AuthenticatedOfertasRouteImport } from './routes/_authenticated/ofertas'
+import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
+import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const FunilRoute = FunilRouteImport.update({
+const AuthenticatedFunilRoute = AuthenticatedFunilRouteImport.update({
   id: '/funil',
   path: '/funil',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ImportarRoute = ImportarRouteImport.update({
+const AuthenticatedImportarRoute = AuthenticatedImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const OfertasRoute = OfertasRouteImport.update({
+const AuthenticatedOfertasRoute = AuthenticatedOfertasRouteImport.update({
   id: '/ofertas',
   path: '/ofertas',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ClientesIndexRoute = ClientesIndexRouteImport.update({
-  id: '/clientes/',
-  path: '/clientes/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ClientesIdRoute = ClientesIdRouteImport.update({
+const AuthenticatedClientesIndexRoute =
+  AuthenticatedClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedClientesIdRoute = AuthenticatedClientesIdRouteImport.update({
   id: '/clientes/$id',
   path: '/clientes/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/funil': typeof FunilRoute
-  '/importar': typeof ImportarRoute
-  '/ofertas': typeof OfertasRoute
-  '/clientes/$id': typeof ClientesIdRoute
-  '/clientes/': typeof ClientesIndexRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/funil': typeof AuthenticatedFunilRoute
+  '/importar': typeof AuthenticatedImportarRoute
+  '/ofertas': typeof AuthenticatedOfertasRoute
+  '/clientes/$id': typeof AuthenticatedClientesIdRoute
+  '/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/funil': typeof FunilRoute
-  '/importar': typeof ImportarRoute
-  '/ofertas': typeof OfertasRoute
-  '/clientes/$id': typeof ClientesIdRoute
-  '/clientes': typeof ClientesIndexRoute
+  '/auth': typeof AuthRoute
+  '/funil': typeof AuthenticatedFunilRoute
+  '/importar': typeof AuthenticatedImportarRoute
+  '/ofertas': typeof AuthenticatedOfertasRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/clientes/$id': typeof AuthenticatedClientesIdRoute
+  '/clientes': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/funil': typeof FunilRoute
-  '/importar': typeof ImportarRoute
-  '/ofertas': typeof OfertasRoute
-  '/clientes/$id': typeof ClientesIdRoute
-  '/clientes/': typeof ClientesIndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/funil': typeof AuthenticatedFunilRoute
+  '/_authenticated/importar': typeof AuthenticatedImportarRoute
+  '/_authenticated/ofertas': typeof AuthenticatedOfertasRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
+  '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/funil' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes/'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/funil' | '/importar' | '/ofertas' | '/clientes/$id' | '/clientes'
-  id:
-    | '__root__'
     | '/'
+    | '/auth'
     | '/funil'
     | '/importar'
     | '/ofertas'
     | '/clientes/$id'
     | '/clientes/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/auth'
+    | '/funil'
+    | '/importar'
+    | '/ofertas'
+    | '/'
+    | '/clientes/$id'
+    | '/clientes'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/funil'
+    | '/_authenticated/importar'
+    | '/_authenticated/ofertas'
+    | '/_authenticated/'
+    | '/_authenticated/clientes/$id'
+    | '/_authenticated/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  FunilRoute: typeof FunilRoute
-  ImportarRoute: typeof ImportarRoute
-  OfertasRoute: typeof OfertasRoute
-  ClientesIdRoute: typeof ClientesIdRoute
-  ClientesIndexRoute: typeof ClientesIndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/funil': {
-      id: '/funil'
+    '/_authenticated/funil': {
+      id: '/_authenticated/funil'
       path: '/funil'
       fullPath: '/funil'
-      preLoaderRoute: typeof FunilRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedFunilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/importar': {
-      id: '/importar'
+    '/_authenticated/importar': {
+      id: '/_authenticated/importar'
       path: '/importar'
       fullPath: '/importar'
-      preLoaderRoute: typeof ImportarRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedImportarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/ofertas': {
-      id: '/ofertas'
+    '/_authenticated/ofertas': {
+      id: '/_authenticated/ofertas'
       path: '/ofertas'
       fullPath: '/ofertas'
-      preLoaderRoute: typeof OfertasRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedOfertasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/clientes/': {
-      id: '/clientes/'
+    '/_authenticated/clientes/': {
+      id: '/_authenticated/clientes/'
       path: '/clientes'
       fullPath: '/clientes/'
-      preLoaderRoute: typeof ClientesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/clientes/$id': {
-      id: '/clientes/$id'
+    '/_authenticated/clientes/$id': {
+      id: '/_authenticated/clientes/$id'
       path: '/clientes/$id'
       fullPath: '/clientes/$id'
-      preLoaderRoute: typeof ClientesIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedClientesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
+  AuthenticatedImportarRoute: typeof AuthenticatedImportarRoute
+  AuthenticatedOfertasRoute: typeof AuthenticatedOfertasRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
+  AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedFunilRoute: AuthenticatedFunilRoute,
+  AuthenticatedImportarRoute: AuthenticatedImportarRoute,
+  AuthenticatedOfertasRoute: AuthenticatedOfertasRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedClientesIdRoute: AuthenticatedClientesIdRoute,
+  AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  FunilRoute: FunilRoute,
-  ImportarRoute: ImportarRoute,
-  OfertasRoute: OfertasRoute,
-  ClientesIdRoute: ClientesIdRoute,
-  ClientesIndexRoute: ClientesIndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

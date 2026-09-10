@@ -16,7 +16,7 @@ import {
   type Classificacao,
 } from "@/lib/crm";
 
-export const Route = createFileRoute("/clientes/")({
+export const Route = createFileRoute("/_authenticated/clientes/")({
   head: () => ({
     meta: [
       { title: "Clientes · CRM Empório 56" },
