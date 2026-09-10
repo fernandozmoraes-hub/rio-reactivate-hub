@@ -151,3 +151,41 @@
     color: var(--color-foreground);
   }
 }
+
+/* Empório 56 — design tokens (Operational Ledger) */
+:root {
+  --paper: oklch(0.945 0.014 85);
+  --surface: oklch(0.973 0.010 85);
+  --ink: oklch(0.199 0.003 285);
+  --ink-soft: oklch(0.442 0.010 75);
+  --faint: oklch(0.598 0.014 80);
+  --line: oklch(0.905 0.016 80);
+  --ember: oklch(0.545 0.150 36);
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--surface);
+  --card-foreground: var(--ink);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--surface);
+  --accent-foreground: var(--ink);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--ember);
+  --radius: 0.5rem;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@utility rise {
+  animation: rise 0.5s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
