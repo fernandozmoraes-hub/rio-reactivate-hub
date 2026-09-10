@@ -14,7 +14,186 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clientes: {
+        Row: {
+          classificacao: string
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          produtora_id: string | null
+          proximo_contato: string | null
+          status: string
+          ultimo_contato: string | null
+          ultimo_projeto: string | null
+          ultimo_trabalho: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          classificacao?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          produtora_id?: string | null
+          proximo_contato?: string | null
+          status?: string
+          ultimo_contato?: string | null
+          ultimo_projeto?: string | null
+          ultimo_trabalho?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          classificacao?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          produtora_id?: string | null
+          proximo_contato?: string | null
+          status?: string
+          ultimo_contato?: string | null
+          ultimo_projeto?: string | null
+          ultimo_trabalho?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_produtora_id_fkey"
+            columns: ["produtora_id"]
+            isOneToOne: false
+            referencedRelation: "produtoras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interacoes: {
+        Row: {
+          anotacao: string | null
+          canal: string
+          cliente_id: string
+          created_at: string
+          data: string
+          id: string
+          tipo: string
+        }
+        Insert: {
+          anotacao?: string | null
+          canal?: string
+          cliente_id: string
+          created_at?: string
+          data?: string
+          id?: string
+          tipo?: string
+        }
+        Update: {
+          anotacao?: string | null
+          canal?: string
+          cliente_id?: string
+          created_at?: string
+          data?: string
+          id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interacoes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ofertas: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          validade: string | null
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          validade?: string | null
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          validade?: string | null
+        }
+        Relationships: []
+      }
+      produtoras: {
+        Row: {
+          contato: string | null
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          contato?: string | null
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          contato?: string | null
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      trabalhos: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          data: string
+          id: string
+          nome_projeto: string
+          observacoes: string | null
+          valor: number | null
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          data?: string
+          id?: string
+          nome_projeto: string
+          observacoes?: string | null
+          valor?: number | null
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          data?: string
+          id?: string
+          nome_projeto?: string
+          observacoes?: string | null
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trabalhos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
