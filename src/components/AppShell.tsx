@@ -1,5 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+
+import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { to: "/", label: "Reativação" },
@@ -10,6 +13,16 @@ const NAV = [
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  async function sair() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
   return (
     <div className="min-h-screen bg-paper text-ink font-sans antialiased text-[14px]">
       <div className="mx-auto max-w-[1360px] lg:grid lg:grid-cols-[224px_1fr]">
@@ -38,6 +51,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
+
+          <button
+            onClick={sair}
+            className="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-faint hover:text-ember"
+          >
+            sair
+          </button>
         </aside>
 
         <main className="px-5 py-6 sm:px-8">{children}</main>
