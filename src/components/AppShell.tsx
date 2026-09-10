@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 const NAV = [
   { to: "/", label: "Reativação" },
+  { to: "/funil", label: "Funil" },
   { to: "/clientes", label: "Clientes" },
   { to: "/ofertas", label: "Ofertas" },
   { to: "/importar", label: "Importar CSV" },

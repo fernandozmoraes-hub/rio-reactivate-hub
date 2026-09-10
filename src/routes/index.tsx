@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { AppShell } from "@/components/AppShell";
 import { ClassChip } from "@/components/ClassChip";
+import { RegistrarContatoRapido } from "@/components/RegistrarContatoRapido";
 import {
   diasSemContato,
   fetchClientes,
@@ -161,6 +162,7 @@ function Reativacao() {
                   </p>
                 </div>
                 <div className="flex justify-end gap-2">
+                  <RegistrarContatoRapido clienteId={c.id} nome={c.nome} />
                   {wa ? (
                     <a
                       href={wa}
