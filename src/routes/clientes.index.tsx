@@ -122,7 +122,10 @@ function Clientes() {
           className="rise mt-5 grid gap-3 rounded-xl border border-line bg-surface p-5 sm:grid-cols-2"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!form.nome.trim()) return toast.error("Informe o nome do cliente.");
+            if (!form.nome.trim()) {
+              toast.error("Informe o nome do cliente.");
+              return;
+            }
             criar.mutate();
           }}
         >

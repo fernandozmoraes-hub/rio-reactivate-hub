@@ -81,7 +81,10 @@ function Ofertas() {
             className="mt-4 space-y-3"
             onSubmit={(e) => {
               e.preventDefault();
-              if (!nome.trim()) return toast.error("Informe o nome da oferta.");
+              if (!nome.trim()) {
+                toast.error("Informe o nome da oferta.");
+                return;
+              }
               criar.mutate();
             }}
           >

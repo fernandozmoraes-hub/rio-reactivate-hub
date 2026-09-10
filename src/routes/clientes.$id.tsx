@@ -154,7 +154,10 @@ function Ficha() {
             </button>
             <button
               onClick={() => {
-                if (!dataAgenda) return toast.error("Escolha a data do próximo contato.");
+                if (!dataAgenda) {
+                  toast.error("Escolha a data do próximo contato.");
+                  return;
+                }
                 agenda.mutate();
               }}
               disabled={agenda.isPending}
