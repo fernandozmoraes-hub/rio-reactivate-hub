@@ -17,7 +17,7 @@ import {
   registrarContato,
 } from "@/lib/crm";
 
-export const Route = createFileRoute("/clientes/$id")({
+export const Route = createFileRoute("/_authenticated/clientes/$id")({
   head: () => ({
     meta: [
       { title: "Ficha do cliente · CRM Empório 56" },

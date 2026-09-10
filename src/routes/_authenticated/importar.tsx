@@ -7,7 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import type { Classificacao } from "@/lib/crm";
 
-export const Route = createFileRoute("/importar")({
+export const Route = createFileRoute("/_authenticated/importar")({
   head: () => ({
     meta: [
       { title: "Importar CSV · CRM Empório 56" },

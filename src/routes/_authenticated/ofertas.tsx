@@ -7,7 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchOfertas, formatarData } from "@/lib/crm";
 
-export const Route = createFileRoute("/ofertas")({
+export const Route = createFileRoute("/_authenticated/ofertas")({
   head: () => ({
     meta: [
       { title: "Ofertas · CRM Empório 56" },

@@ -16,7 +16,7 @@ import {
   type Cliente,
 } from "@/lib/crm";
 
-export const Route = createFileRoute("/funil")({
+export const Route = createFileRoute("/_authenticated/funil")({
   head: () => ({
     meta: [
       { title: "Funil · CRM Empório 56" },
