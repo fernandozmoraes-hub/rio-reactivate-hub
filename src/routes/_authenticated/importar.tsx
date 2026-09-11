@@ -160,14 +160,25 @@ function Importar() {
     }
 
     if (registros.length > 0) {
-      const { error } = await supabase.from("clientes").insert(registros);
+      const { data: inseridos, error } = await supabase
+        .from("clientes")
+        .insert(registros)
+        .select("id, produtora_id");
       if (error) {
         problemas.push(`Erro ao salvar: ${error.message}`);
         toast.error("Não foi possível importar os clientes.");
       } else {
-        toast.success(`${registros.length} cliente(s) importado(s).`);
+        const vinculos = (inseridos ?? [])
+          .filter((c) => c.produtora_id)
+          .map((c) => ({ cliente_id: c.id, produtora_id: c.produtora_id as string }));
+        if (vinculos.length) {
+          const { error: vErr } = await supabase.from("cliente_produtoras").insert(vinculos);
+          if (vErr) problemas.push(`Erro ao vincular produtoras: ${vErr.message}`);
+        }
+        toast.success(`${registros.length} contato(s) importado(s).`);
         setTexto("");
         qc.invalidateQueries({ queryKey: ["clientes"] });
+        qc.invalidateQueries({ queryKey: ["vinculos"] });
       }
     }
 

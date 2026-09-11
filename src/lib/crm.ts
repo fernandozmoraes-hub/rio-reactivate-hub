@@ -8,6 +8,11 @@ export type Produtora = {
   contato: string | null;
 };
 
+export type VinculoProdutora = {
+  produtora_id: string;
+  produtoras: { id: string; nome: string } | null;
+};
+
 export type Cliente = {
   id: string;
   nome: string;
@@ -25,7 +30,20 @@ export type Cliente = {
   estagio_atualizado_em: string;
   proxima_acao: string | null;
   produtoras?: { nome: string } | null;
+  cliente_produtoras?: VinculoProdutora[] | null;
 };
+
+export function produtorasDoCliente(cliente: Cliente): { id: string; nome: string }[] {
+  return (cliente.cliente_produtoras ?? [])
+    .map((v) => v.produtoras)
+    .filter((p): p is { id: string; nome: string } => Boolean(p))
+    .sort((a, b) => a.nome.localeCompare(b.nome));
+}
+
+export function nomesProdutoras(cliente: Cliente): string {
+  const nomes = produtorasDoCliente(cliente).map((p) => p.nome);
+  return nomes.length ? nomes.join(", ") : "Sem produtora";
+}
 
 export const ESTAGIOS = [
   { id: "reativar", label: "Reativar" },
@@ -119,24 +137,23 @@ export function hojeISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+const SELECT_CLIENTE = "*, cliente_produtoras(produtora_id, produtoras(id, nome))";
+
 export async function fetchClientes(): Promise<Cliente[]> {
-  const { data, error } = await supabase
-    .from("clientes")
-    .select("*, produtoras(nome)")
-    .order("nome");
+  const { data, error } = await supabase.from("clientes").select(SELECT_CLIENTE).order("nome");
   if (error) throw error;
-  return (data ?? []) as Cliente[];
+  return (data ?? []) as unknown as Cliente[];
 }
 
 export async function fetchCliente(id: string): Promise<Cliente> {
   const { data, error } = await supabase
     .from("clientes")
-    .select("*, produtoras(nome)")
+    .select(SELECT_CLIENTE)
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
   if (!data) throw new Error("Cliente não encontrado");
-  return data as Cliente;
+  return data as unknown as Cliente;
 }
 
 export async function fetchProdutoras(): Promise<Produtora[]> {
@@ -156,14 +173,55 @@ export async function fetchProdutora(id: string): Promise<Produtora> {
   return data as Produtora;
 }
 
+export async function fetchVinculos(): Promise<{ cliente_id: string; produtora_id: string }[]> {
+  const { data, error } = await supabase
+    .from("cliente_produtoras")
+    .select("cliente_id, produtora_id");
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function fetchClientesDaProdutora(produtoraId: string): Promise<Cliente[]> {
+  const { data: vinculos, error: vErr } = await supabase
+    .from("cliente_produtoras")
+    .select("cliente_id")
+    .eq("produtora_id", produtoraId);
+  if (vErr) throw vErr;
+  const ids = (vinculos ?? []).map((v) => v.cliente_id);
+  if (ids.length === 0) return [];
   const { data, error } = await supabase
     .from("clientes")
-    .select("*, produtoras(nome)")
-    .eq("produtora_id", produtoraId)
+    .select(SELECT_CLIENTE)
+    .in("id", ids)
     .order("nome");
   if (error) throw error;
-  return (data ?? []) as Cliente[];
+  return (data ?? []) as unknown as Cliente[];
+}
+
+export async function definirProdutorasDoCliente(clienteId: string, ids: string[]): Promise<void> {
+  const { data: atuais, error: aErr } = await supabase
+    .from("cliente_produtoras")
+    .select("produtora_id")
+    .eq("cliente_id", clienteId);
+  if (aErr) throw aErr;
+  const atuaisIds = (atuais ?? []).map((v) => v.produtora_id);
+  const remover = atuaisIds.filter((id) => !ids.includes(id));
+  const adicionar = ids.filter((id) => !atuaisIds.includes(id));
+
+  if (remover.length) {
+    const { error } = await supabase
+      .from("cliente_produtoras")
+      .delete()
+      .eq("cliente_id", clienteId)
+      .in("produtora_id", remover);
+    if (error) throw error;
+  }
+  if (adicionar.length) {
+    const { error } = await supabase
+      .from("cliente_produtoras")
+      .insert(adicionar.map((produtora_id) => ({ cliente_id: clienteId, produtora_id })));
+    if (error) throw error;
+  }
 }
 
 export async function criarProdutora(nome: string, contato?: string): Promise<Produtora> {

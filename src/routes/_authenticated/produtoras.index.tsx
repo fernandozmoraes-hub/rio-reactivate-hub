@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import {
   atualizarProdutora,
   criarProdutora,
-  fetchClientes,
   fetchProdutoras,
+  fetchVinculos,
   type Produtora,
 } from "@/lib/crm";
 
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/produtoras/")({
 function Produtoras() {
   const qc = useQueryClient();
   const produtoras = useQuery({ queryKey: ["produtoras"], queryFn: fetchProdutoras });
-  const clientes = useQuery({ queryKey: ["clientes"], queryFn: fetchClientes });
+  const vinculos = useQuery({ queryKey: ["vinculos"], queryFn: fetchVinculos });
   const [busca, setBusca] = useState("");
   const [formAberto, setFormAberto] = useState(false);
   const [nome, setNome] = useState("");
@@ -131,10 +131,10 @@ function Produtoras() {
 
       <section className="mt-4 overflow-hidden rounded-xl border border-line bg-surface ring-1 ring-black/5">
         <div className="hidden grid-cols-[1.5fr_1.2fr_0.5fr_0.5fr] gap-3 border-b border-line bg-black/[0.02] px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-faint md:grid">
-          <span>Produtora</span><span>Contato</span><span>Clientes</span><span className="text-right">Ação</span>
+          <span>Produtora</span><span>Contato</span><span>Contatos</span><span className="text-right">Ação</span>
         </div>
         {lista.map((p) => {
-          const total = (clientes.data ?? []).filter((c) => c.produtora_id === p.id).length;
+          const total = (vinculos.data ?? []).filter((v) => v.produtora_id === p.id).length;
           return (
             <div key={p.id} className="flex items-center gap-3 border-b border-line px-4 py-3 last:border-b-0 md:grid md:grid-cols-[1.5fr_1.2fr_0.5fr_0.5fr]">
               <Link to="/produtoras/$id" params={{ id: p.id }} className="min-w-0 flex-1 truncate text-[14px] font-semibold tracking-tight hover:text-ember">
