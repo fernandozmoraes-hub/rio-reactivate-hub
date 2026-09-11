@@ -17,6 +17,8 @@ import { Route as AuthenticatedImportarRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOfertasRouteImport } from './routes/_authenticated/ofertas'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
+import { Route as AuthenticatedProdutorasIndexRouteImport } from './routes/_authenticated/produtoras.index'
+import { Route as AuthenticatedProdutorasIdRouteImport } from './routes/_authenticated/produtoras.$id'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -58,6 +60,18 @@ const AuthenticatedClientesIdRoute = AuthenticatedClientesIdRouteImport.update({
   path: '/clientes/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProdutorasIndexRoute =
+  AuthenticatedProdutorasIndexRouteImport.update({
+    id: '/produtoras/',
+    path: '/produtoras/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProdutorasIdRoute =
+  AuthenticatedProdutorasIdRouteImport.update({
+    id: '/produtoras/$id',
+    path: '/produtoras/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -66,7 +80,9 @@ export interface FileRoutesByFullPath {
   '/importar': typeof AuthenticatedImportarRoute
   '/ofertas': typeof AuthenticatedOfertasRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
+  '/produtoras/$id': typeof AuthenticatedProdutorasIdRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/produtoras/': typeof AuthenticatedProdutorasIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -75,7 +91,9 @@ export interface FileRoutesByTo {
   '/ofertas': typeof AuthenticatedOfertasRoute
   '/': typeof AuthenticatedIndexRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
+  '/produtoras/$id': typeof AuthenticatedProdutorasIdRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
+  '/produtoras': typeof AuthenticatedProdutorasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,7 +104,9 @@ export interface FileRoutesById {
   '/_authenticated/ofertas': typeof AuthenticatedOfertasRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
+  '/_authenticated/produtoras/$id': typeof AuthenticatedProdutorasIdRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/_authenticated/produtoras/': typeof AuthenticatedProdutorasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,7 +117,9 @@ export interface FileRouteTypes {
     | '/importar'
     | '/ofertas'
     | '/clientes/$id'
+    | '/produtoras/$id'
     | '/clientes/'
+    | '/produtoras/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -106,7 +128,9 @@ export interface FileRouteTypes {
     | '/ofertas'
     | '/'
     | '/clientes/$id'
+    | '/produtoras/$id'
     | '/clientes'
+    | '/produtoras'
   id:
     | '__root__'
     | '/_authenticated'
@@ -116,7 +140,9 @@ export interface FileRouteTypes {
     | '/_authenticated/ofertas'
     | '/_authenticated/'
     | '/_authenticated/clientes/$id'
+    | '/_authenticated/produtoras/$id'
     | '/_authenticated/clientes/'
+    | '/_authenticated/produtoras/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -182,6 +208,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/produtoras/': {
+      id: '/_authenticated/produtoras/'
+      path: '/produtoras'
+      fullPath: '/produtoras/'
+      preLoaderRoute: typeof AuthenticatedProdutorasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/produtoras/$id': {
+      id: '/_authenticated/produtoras/$id'
+      path: '/produtoras/$id'
+      fullPath: '/produtoras/$id'
+      preLoaderRoute: typeof AuthenticatedProdutorasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -191,7 +231,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOfertasRoute: typeof AuthenticatedOfertasRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
+  AuthenticatedProdutorasIdRoute: typeof AuthenticatedProdutorasIdRoute
   AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
+  AuthenticatedProdutorasIndexRoute: typeof AuthenticatedProdutorasIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -200,7 +242,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOfertasRoute: AuthenticatedOfertasRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedClientesIdRoute: AuthenticatedClientesIdRoute,
+  AuthenticatedProdutorasIdRoute: AuthenticatedProdutorasIdRoute,
   AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
+  AuthenticatedProdutorasIndexRoute: AuthenticatedProdutorasIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

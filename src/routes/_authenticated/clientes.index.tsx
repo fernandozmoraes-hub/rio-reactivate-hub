@@ -5,9 +5,11 @@ import { toast } from "sonner";
 
 import { AppShell } from "@/components/AppShell";
 import { ClassChip } from "@/components/ClassChip";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import {
   diasSemContato,
+  criarProdutora,
   fetchClientes,
   fetchProdutoras,
   formatarData,
@@ -56,6 +58,9 @@ function Clientes() {
   const [filtro, setFiltro] = useState<"todos" | Classificacao>("todos");
   const [form, setForm] = useState(VAZIO);
   const [aberto, setAberto] = useState(false);
+  const [novaProdutoraAberta, setNovaProdutoraAberta] = useState(false);
+  const [novaProdutoraNome, setNovaProdutoraNome] = useState("");
+  const [novaProdutoraContato, setNovaProdutoraContato] = useState("");
 
   const lista = useMemo(() => {
     const base = ordenarPorPrioridade(clientes.data ?? []);
@@ -92,6 +97,21 @@ function Clientes() {
       setForm(VAZIO);
       setAberto(false);
       qc.invalidateQueries({ queryKey: ["clientes"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const criarProdutoraRapido = useMutation({
+    mutationFn: () => criarProdutora(novaProdutoraNome, novaProdutoraContato),
+    onSuccess: (nova) => {
+      qc.setQueryData(["produtoras"], (atuais: typeof produtoras.data) =>
+        [...(atuais ?? []), nova].sort((a, b) => a.nome.localeCompare(b.nome)),
+      );
+      setForm((atual) => ({ ...atual, produtora_id: nova.id }));
+      setNovaProdutoraNome("");
+      setNovaProdutoraContato("");
+      setNovaProdutoraAberta(false);
+      toast.success("Produtora cadastrada e selecionada.");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -135,7 +155,14 @@ function Clientes() {
           <Campo label="Produtora">
             <select
               value={form.produtora_id}
-              onChange={(e) => setForm({ ...form, produtora_id: e.target.value })}
+              onChange={(e) => {
+                if (e.target.value === "__nova__") {
+                  setNovaProdutoraAberta(true);
+                  return;
+                }
+                setNovaProdutoraAberta(false);
+                setForm({ ...form, produtora_id: e.target.value });
+              }}
               className="w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
             >
               <option value="">Sem produtora</option>
@@ -144,7 +171,50 @@ function Clientes() {
                   {p.nome}
                 </option>
               ))}
+              <option value="__nova__">Cadastrar nova produtora</option>
             </select>
+            {novaProdutoraAberta && (
+              <div className="mt-2 grid gap-2 rounded-md border border-line bg-paper p-3 sm:grid-cols-2">
+                <input
+                  value={novaProdutoraNome}
+                  onChange={(e) => setNovaProdutoraNome(e.target.value)}
+                  placeholder="Nome da produtora"
+                  aria-label="Nome da nova produtora"
+                  className="w-full rounded-md border border-line bg-surface px-3 py-2 text-[13px] outline-none focus:border-ember"
+                />
+                <input
+                  value={novaProdutoraContato}
+                  onChange={(e) => setNovaProdutoraContato(e.target.value)}
+                  placeholder="Contato (opcional)"
+                  aria-label="Contato da nova produtora"
+                  className="w-full rounded-md border border-line bg-surface px-3 py-2 text-[13px] outline-none focus:border-ember"
+                />
+                <div className="flex gap-2 sm:col-span-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={criarProdutoraRapido.isPending}
+                    onClick={() => {
+                      if (!novaProdutoraNome.trim()) {
+                        toast.error("Informe o nome da produtora.");
+                        return;
+                      }
+                      criarProdutoraRapido.mutate();
+                    }}
+                  >
+                    Cadastrar e selecionar
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setNovaProdutoraAberta(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            )}
           </Campo>
           <Campo label="WhatsApp (com DDI, ex 5511999998888)">
             <Input value={form.whatsapp} onChange={(v) => setForm({ ...form, whatsapp: v })} />
