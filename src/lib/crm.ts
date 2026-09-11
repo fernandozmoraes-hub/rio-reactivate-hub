@@ -145,6 +145,48 @@ export async function fetchProdutoras(): Promise<Produtora[]> {
   return (data ?? []) as Produtora[];
 }
 
+export async function fetchProdutora(id: string): Promise<Produtora> {
+  const { data, error } = await supabase
+    .from("produtoras")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Produtora não encontrada");
+  return data as Produtora;
+}
+
+export async function fetchClientesDaProdutora(produtoraId: string): Promise<Cliente[]> {
+  const { data, error } = await supabase
+    .from("clientes")
+    .select("*, produtoras(nome)")
+    .eq("produtora_id", produtoraId)
+    .order("nome");
+  if (error) throw error;
+  return (data ?? []) as Cliente[];
+}
+
+export async function criarProdutora(nome: string, contato?: string): Promise<Produtora> {
+  const { data, error } = await supabase
+    .from("produtoras")
+    .insert({ nome: nome.trim(), contato: contato?.trim() || null })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return data as Produtora;
+}
+
+export async function atualizarProdutora(
+  id: string,
+  dados: Pick<Produtora, "nome" | "contato">,
+): Promise<void> {
+  const { error } = await supabase
+    .from("produtoras")
+    .update({ nome: dados.nome.trim(), contato: dados.contato?.trim() || null })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 export async function fetchInteracoes(clienteId: string): Promise<Interacao[]> {
   const { data, error } = await supabase
     .from("interacoes")
