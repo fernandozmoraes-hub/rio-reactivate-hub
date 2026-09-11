@@ -10,6 +10,7 @@ import {
   fetchOfertas,
   formatarData,
   linkWhatsApp,
+  nomesProdutoras,
   ordenarPorPrioridade,
 } from "@/lib/crm";
 
@@ -138,7 +139,7 @@ function Reativacao() {
                       {c.nome}
                     </Link>
                     <p className="truncate font-mono text-[11px] text-ink-soft">
-                      {c.produtoras?.nome ?? "Sem produtora"}
+                      {nomesProdutoras(c)}
                     </p>
                   </div>
                 </div>

@@ -7,13 +7,17 @@ import { AppShell } from "@/components/AppShell";
 import { ClassChip } from "@/components/ClassChip";
 import {
   agendarContato,
+  definirProdutorasDoCliente,
   diasSemContato,
   fetchCliente,
   fetchInteracoes,
+  fetchProdutoras,
   fetchTrabalhos,
   formatarData,
   hojeISO,
   linkWhatsApp,
+  nomesProdutoras,
+  produtorasDoCliente,
   registrarContato,
 } from "@/lib/crm";
 
@@ -87,6 +91,20 @@ function Ficha() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const produtoras = useQuery({ queryKey: ["produtoras"], queryFn: fetchProdutoras });
+  const vinculadas = cliente.data ? produtorasDoCliente(cliente.data).map((p) => p.id) : [];
+
+  const vincular = useMutation({
+    mutationFn: (ids: string[]) => definirProdutorasDoCliente(id, ids),
+    onSuccess: () => {
+      toast.success("Produtoras atualizadas.");
+      qc.invalidateQueries({ queryKey: ["cliente", id] });
+      qc.invalidateQueries({ queryKey: ["clientes"] });
+      qc.invalidateQueries({ queryKey: ["clientes", "produtora"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (cliente.isLoading) {
     return (
       <AppShell>
@@ -121,7 +139,7 @@ function Ficha() {
           </div>
 
           <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-[12px]">
-            <Item rotulo="Produtora" valor={c.produtoras?.nome ?? "—"} />
+            <Item rotulo="Produtoras" valor={nomesProdutoras(c)} />
             <Item rotulo="WhatsApp" valor={c.whatsapp ?? "—"} />
             <Item rotulo="E-mail" valor={c.email ?? "—"} />
             <Item rotulo="Status" valor={c.status} />
@@ -143,6 +161,35 @@ function Ficha() {
               <dd className="mt-0.5 text-pretty text-ink-soft">{c.observacoes ?? "—"}</dd>
             </div>
           </dl>
+
+          <div className="mt-4 rounded-lg border border-line bg-paper p-3">
+            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+              Produtoras vinculadas
+            </p>
+            <div className="mt-2 max-h-40 space-y-1 overflow-y-auto">
+              {(produtoras.data ?? []).map((p) => (
+                <label key={p.id} className="flex items-center gap-2 text-[13px]">
+                  <input
+                    type="checkbox"
+                    checked={vinculadas.includes(p.id)}
+                    disabled={vincular.isPending}
+                    onChange={(e) =>
+                      vincular.mutate(
+                        e.target.checked
+                          ? [...vinculadas, p.id]
+                          : vinculadas.filter((v) => v !== p.id),
+                      )
+                    }
+                  />
+                  <span className="truncate">{p.nome}</span>
+                </label>
+              ))}
+              {(produtoras.data ?? []).length === 0 && (
+                <p className="font-mono text-[11px] text-faint">Nenhuma produtora cadastrada.</p>
+              )}
+            </div>
+            <p className="mt-2 font-mono text-[11px] text-ink-soft">{nomesProdutoras(c)}</p>
+          </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <button

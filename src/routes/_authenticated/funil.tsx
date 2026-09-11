@@ -11,6 +11,7 @@ import {
   diasSemContato,
   fetchClientes,
   moverEstagio,
+  nomesProdutoras,
   ordenarPorPrioridade,
   salvarProximaAcao,
   type Cliente,
@@ -164,7 +165,7 @@ function Card({
         <ClassChip value={cliente.classificacao} />
       </div>
       <p className="mt-0.5 truncate font-mono text-[11px] text-ink-soft">
-        {cliente.produtoras?.nome ?? "Sem produtora"}
+        {nomesProdutoras(cliente)}
       </p>
       <p
         className={`mt-1 font-mono text-[11px] ${(dias ?? 0) >= 60 ? "text-ember" : "text-faint"}`}

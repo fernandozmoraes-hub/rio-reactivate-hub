@@ -10,10 +10,12 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   diasSemContato,
   criarProdutora,
+  definirProdutorasDoCliente,
   fetchClientes,
   fetchProdutoras,
   formatarData,
   linkWhatsApp,
+  nomesProdutoras,
   ordenarPorPrioridade,
   type Classificacao,
 } from "@/lib/crm";
@@ -38,7 +40,6 @@ export const Route = createFileRoute("/_authenticated/clientes/")({
 
 const VAZIO = {
   nome: "",
-  produtora_id: "",
   whatsapp: "",
   email: "",
   classificacao: "B" as Classificacao,
@@ -61,6 +62,13 @@ function Clientes() {
   const [novaProdutoraAberta, setNovaProdutoraAberta] = useState(false);
   const [novaProdutoraNome, setNovaProdutoraNome] = useState("");
   const [novaProdutoraContato, setNovaProdutoraContato] = useState("");
+  const [produtoraIds, setProdutoraIds] = useState<string[]>([]);
+
+  function alternarProdutora(id: string) {
+    setProdutoraIds((atual) =>
+      atual.includes(id) ? atual.filter((p) => p !== id) : [...atual, id],
+    );
+  }
 
   const lista = useMemo(() => {
     const base = ordenarPorPrioridade(clientes.data ?? []);
@@ -70,7 +78,7 @@ function Clientes() {
       const okBusca =
         !termo ||
         c.nome.toLowerCase().includes(termo) ||
-        (c.produtoras?.nome ?? "").toLowerCase().includes(termo) ||
+        nomesProdutoras(c).toLowerCase().includes(termo) ||
         (c.email ?? "").toLowerCase().includes(termo);
       return okFiltro && okBusca;
     });
@@ -78,9 +86,10 @@ function Clientes() {
 
   const criar = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("clientes").insert({
+      const { data, error } = await supabase
+        .from("clientes")
+        .insert({
         nome: form.nome,
-        produtora_id: form.produtora_id || null,
         whatsapp: form.whatsapp || null,
         email: form.email || null,
         classificacao: form.classificacao,
@@ -89,12 +98,18 @@ function Clientes() {
         ultimo_trabalho: form.ultimo_trabalho || null,
         ultimo_projeto: form.ultimo_projeto || null,
         observacoes: form.observacoes || null,
-      });
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      if (data && produtoraIds.length) {
+        await definirProdutorasDoCliente(data.id, produtoraIds);
+      }
     },
     onSuccess: () => {
-      toast.success("Cliente cadastrado.");
+      toast.success("Contato cadastrado.");
       setForm(VAZIO);
+      setProdutoraIds([]);
       setAberto(false);
       qc.invalidateQueries({ queryKey: ["clientes"] });
     },
@@ -107,7 +122,7 @@ function Clientes() {
       qc.setQueryData(["produtoras"], (atuais: typeof produtoras.data) =>
         [...(atuais ?? []), nova].sort((a, b) => a.nome.localeCompare(b.nome)),
       );
-      setForm((atual) => ({ ...atual, produtora_id: nova.id }));
+      setProdutoraIds((atual) => [...atual, nova.id]);
       setNovaProdutoraNome("");
       setNovaProdutoraContato("");
       setNovaProdutoraAberta(false);
@@ -152,27 +167,31 @@ function Clientes() {
           <Campo label="Nome">
             <Input value={form.nome} onChange={(v) => setForm({ ...form, nome: v })} />
           </Campo>
-          <Campo label="Produtora">
-            <select
-              value={form.produtora_id}
-              onChange={(e) => {
-                if (e.target.value === "__nova__") {
-                  setNovaProdutoraAberta(true);
-                  return;
-                }
-                setNovaProdutoraAberta(false);
-                setForm({ ...form, produtora_id: e.target.value });
-              }}
-              className="w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
-            >
-              <option value="">Sem produtora</option>
+          <Campo label="Produtoras (nenhuma, uma ou várias)">
+            <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border border-line bg-paper p-2">
               {(produtoras.data ?? []).map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nome}
-                </option>
+                <label key={p.id} className="flex items-center gap-2 text-[13px]">
+                  <input
+                    type="checkbox"
+                    checked={produtoraIds.includes(p.id)}
+                    onChange={() => alternarProdutora(p.id)}
+                  />
+                  <span className="truncate">{p.nome}</span>
+                </label>
               ))}
-              <option value="__nova__">Cadastrar nova produtora</option>
-            </select>
+              {(produtoras.data ?? []).length === 0 && (
+                <p className="font-mono text-[11px] text-faint">Nenhuma produtora cadastrada.</p>
+              )}
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="mt-1 px-0"
+              onClick={() => setNovaProdutoraAberta((v) => !v)}
+            >
+              Cadastrar nova produtora
+            </Button>
             {novaProdutoraAberta && (
               <div className="mt-2 grid gap-2 rounded-md border border-line bg-paper p-3 sm:grid-cols-2">
                 <input
@@ -333,7 +352,7 @@ function Clientes() {
                   {c.nome}
                 </Link>
                 <p className="truncate font-mono text-[11px] text-ink-soft">
-                  {c.produtoras?.nome ?? "Sem produtora"} · último trabalho{" "}
+                  {nomesProdutoras(c)} · último trabalho{" "}
                   {formatarData(c.ultimo_trabalho)}
                 </p>
               </div>
