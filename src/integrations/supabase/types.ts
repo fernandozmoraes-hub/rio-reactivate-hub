@@ -196,21 +196,30 @@ export type Database = {
           created_at: string
           descricao: string | null
           id: string
+          mensagem: string | null
           nome: string
+          publico_alvo: string | null
+          status: string
           validade: string | null
         }
         Insert: {
           created_at?: string
           descricao?: string | null
           id?: string
+          mensagem?: string | null
           nome: string
+          publico_alvo?: string | null
+          status?: string
           validade?: string | null
         }
         Update: {
           created_at?: string
           descricao?: string | null
           id?: string
+          mensagem?: string | null
           nome?: string
+          publico_alvo?: string | null
+          status?: string
           validade?: string | null
         }
         Relationships: []

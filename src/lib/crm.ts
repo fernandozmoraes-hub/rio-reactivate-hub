@@ -97,6 +97,9 @@ export type Oferta = {
   nome: string;
   descricao: string | null;
   validade: string | null;
+  mensagem: string | null;
+  publico_alvo: string | null;
+  status: string;
 };
 
 const PESO: Record<Classificacao, number> = { A: 0, B: 1, C: 2 };
