@@ -48,9 +48,9 @@ export function nomesProdutoras(cliente: Cliente): string {
 export const ESTAGIOS = [
   { id: "reativar", label: "Reativar" },
   { id: "contato_feito", label: "Contato feito" },
-  { id: "respondeu", label: "Respondeu" },
   { id: "oportunidade", label: "Oportunidade" },
   { id: "proposta", label: "Proposta enviada" },
+  { id: "respondeu", label: "Jobs em Andamento" },
   { id: "fechado", label: "Fechado" },
   { id: "arquivado", label: "Sem interesse / Arquivado" },
 ] as const;
