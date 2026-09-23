@@ -158,6 +158,7 @@ function Card({
         <Link
           to="/clientes/$id"
           params={{ id: cliente.id }}
+          draggable={false}
           className="min-w-0 truncate text-[13px] font-semibold tracking-tight hover:text-ember"
         >
           {cliente.nome}
