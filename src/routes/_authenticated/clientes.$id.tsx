@@ -17,6 +17,7 @@ import {
   formatarData,
   hojeISO,
   linkWhatsApp,
+  moverEstagio,
   nomesProdutoras,
   produtorasDoCliente,
   registrarContato,
@@ -98,6 +99,15 @@ function Ficha() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const fecharProposta = useMutation({
+    mutationFn: () => moverEstagio(id, cliente.data?.estagio ?? null, "fechado"),
+    onSuccess: () => {
+      toast.success("Proposta marcada como fechada.");
+      invalidar();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const registrarTrabalho = useMutation({
     mutationFn: () =>
       criarTrabalho({
@@ -109,7 +119,6 @@ function Ficha() {
         observacoes: obsTrabalho,
       }),
     onSuccess: () => {
-      toast.success("Trabalho registrado.");
       setNomeProjeto("");
       setProdutoVendido("");
       setValorTrabalho("");
@@ -117,6 +126,17 @@ function Ficha() {
       setObsTrabalho("");
       invalidar();
       qc.invalidateQueries({ queryKey: ["trabalhos", id] });
+
+      if (cliente.data && cliente.data.estagio !== "fechado") {
+        toast.success("Trabalho registrado.", {
+          action: {
+            label: "Marcar proposta como fechada",
+            onClick: () => fecharProposta.mutate(),
+          },
+        });
+      } else {
+        toast.success("Trabalho registrado.");
+      }
     },
     onError: (e: Error) => toast.error(e.message),
   });
