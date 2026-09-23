@@ -19,8 +19,10 @@ import {
   linkWhatsApp,
   moverEstagio,
   nomesProdutoras,
+  perderProposta,
   produtorasDoCliente,
   registrarContato,
+  rotuloEstagio,
 } from "@/lib/crm";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id")({
@@ -73,6 +75,9 @@ function Ficha() {
   const [dataTrabalho, setDataTrabalho] = useState(hojeISO());
   const [obsTrabalho, setObsTrabalho] = useState("");
 
+  const [perdendo, setPerdendo] = useState(false);
+  const [motivoPerda, setMotivoPerda] = useState("");
+
   const invalidar = () => {
     qc.invalidateQueries({ queryKey: ["cliente", id] });
     qc.invalidateQueries({ queryKey: ["interacoes", id] });
@@ -103,6 +108,17 @@ function Ficha() {
     mutationFn: () => moverEstagio(id, cliente.data?.estagio ?? null, "fechado"),
     onSuccess: () => {
       toast.success("Proposta marcada como fechada.");
+      invalidar();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const perderPropostaMut = useMutation({
+    mutationFn: () => perderProposta(id, cliente.data?.estagio ?? null, motivoPerda),
+    onSuccess: () => {
+      toast.success("Proposta marcada como perdida.");
+      setPerdendo(false);
+      setMotivoPerda("");
       invalidar();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -187,6 +203,68 @@ function Ficha() {
             <h1 className="text-[18px] font-semibold tracking-tight">Ficha · {c.nome}</h1>
             <ClassChip value={c.classificacao} />
           </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-line px-2.5 py-1 font-mono text-[11px] text-ink-soft">
+              {rotuloEstagio(c.estagio)}
+            </span>
+            {c.estagio !== "fechado" && (
+              <button
+                type="button"
+                onClick={() => fecharProposta.mutate()}
+                disabled={fecharProposta.isPending}
+                className="rounded-full border border-ink/20 px-2.5 py-1 font-mono text-[11px] font-medium hover:bg-black/5 disabled:opacity-50"
+              >
+                Marcar como fechada
+              </button>
+            )}
+            {c.estagio !== "arquivado" && (
+              <button
+                type="button"
+                onClick={() => setPerdendo((v) => !v)}
+                className="rounded-full border border-ember/40 px-2.5 py-1 font-mono text-[11px] font-medium text-ember hover:bg-ember/10"
+              >
+                Marcar como perdida
+              </button>
+            )}
+          </div>
+
+          {perdendo && (
+            <div className="mt-2 rounded-lg border border-line bg-paper p-3">
+              <label className="block">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                  Motivo da perda (opcional)
+                </span>
+                <textarea
+                  value={motivoPerda}
+                  onChange={(e) => setMotivoPerda(e.target.value)}
+                  rows={2}
+                  placeholder="Ex.: fechou com concorrente, orçamento incompatível…"
+                  className="mt-1 w-full rounded-md border border-line bg-surface px-3 py-2 text-[13px] outline-none focus:border-ember"
+                />
+              </label>
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPerdendo(false);
+                    setMotivoPerda("");
+                  }}
+                  className="rounded-md px-2 py-1 text-[11px] text-ink-soft hover:bg-black/5"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={perderPropostaMut.isPending}
+                  onClick={() => perderPropostaMut.mutate()}
+                  className="rounded-md bg-ember px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-50"
+                >
+                  Confirmar perda
+                </button>
+              </div>
+            </div>
+          )}
 
           <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 font-mono text-[12px]">
             <Item rotulo="Produtoras" valor={nomesProdutoras(c)} />
@@ -328,7 +406,12 @@ function Ficha() {
                     {formatarData(i.data)}
                   </span>
                   <span className="text-ink-soft">
-                    {i.tipo === "agendamento" ? "Agendado" : "Contato"} · {i.canal}
+                    {i.tipo === "agendamento"
+                      ? "Agendado"
+                      : i.tipo === "perda"
+                        ? "Proposta perdida"
+                        : "Contato"}
+                    {i.tipo !== "perda" ? ` · ${i.canal}` : ""}
                     {i.anotacao ? ` — ${i.anotacao}` : ""}
                   </span>
                 </li>

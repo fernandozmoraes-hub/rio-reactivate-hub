@@ -52,7 +52,7 @@ export const ESTAGIOS = [
   { id: "proposta", label: "Proposta enviada" },
   { id: "respondeu", label: "Jobs em Andamento" },
   { id: "fechado", label: "Fechado" },
-  { id: "arquivado", label: "Sem interesse / Arquivado" },
+  { id: "arquivado", label: "Perdida / Arquivada" },
 ] as const;
 
 export const CANAIS = [
@@ -355,6 +355,24 @@ export async function moverEstagio(clienteId: string, de: string | null, para: s
     .from("estagio_historico")
     .insert({ cliente_id: clienteId, de, para });
   if (histErr) throw histErr;
+}
+
+export async function perderProposta(
+  clienteId: string,
+  estagioAtual: string | null,
+  motivo?: string,
+): Promise<void> {
+  await moverEstagio(clienteId, estagioAtual, "arquivado");
+  if (motivo && motivo.trim()) {
+    const { error } = await supabase.from("interacoes").insert({
+      cliente_id: clienteId,
+      tipo: "perda",
+      canal: "sistema",
+      data: hojeISO(),
+      anotacao: motivo.trim(),
+    });
+    if (error) throw error;
+  }
 }
 
 export async function salvarProximaAcao(clienteId: string, acao: string) {
