@@ -6,7 +6,14 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchOfertas, formatarData, type Oferta } from "@/lib/crm";
+import {
+  fetchClientes,
+  fetchOfertas,
+  formatarData,
+  linkWhatsApp,
+  type Cliente,
+  type Oferta,
+} from "@/lib/crm";
 
 export const Route = createFileRoute("/_authenticated/ofertas")({
   head: () => ({
@@ -42,6 +49,14 @@ function Ofertas() {
   const [editando, setEditando] = useState<Oferta | null>(null);
   const [form, setForm] = useState<FormState>(FORM_VAZIO);
   const [excluindo, setExcluindo] = useState<Oferta | null>(null);
+
+  const [enviandoOferta, setEnviandoOferta] = useState<Oferta | null>(null);
+  const [buscaCliente, setBuscaCliente] = useState("");
+  const clientes = useQuery({
+    queryKey: ["clientes"],
+    queryFn: fetchClientes,
+    enabled: enviandoOferta !== null,
+  });
 
   function invalidar() {
     qc.invalidateQueries({ queryKey: ["ofertas"] });
@@ -142,6 +157,26 @@ function Ofertas() {
 
   const lista = ofertas.data ?? [];
 
+  function personalizarMensagem(mensagem: string, cliente: Cliente): string {
+    return mensagem.replaceAll("{{nome}}", cliente.nome.split(" ")[0] ?? cliente.nome);
+  }
+
+  function enviarPara(oferta: Oferta, cliente: Cliente) {
+    const mensagem = personalizarMensagem(oferta.mensagem ?? oferta.descricao ?? "", cliente);
+    const link = linkWhatsApp(cliente.whatsapp, mensagem);
+    if (!link) {
+      toast.error("Esse cliente não tem WhatsApp cadastrado.");
+      return;
+    }
+    window.open(link, "_blank", "noreferrer");
+    setEnviandoOferta(null);
+    setBuscaCliente("");
+  }
+
+  const clientesFiltrados = (clientes.data ?? [])
+    .filter((c) => c.whatsapp)
+    .filter((c) => c.nome.toLowerCase().includes(buscaCliente.trim().toLowerCase()));
+
   return (
     <AppShell>
       <header className="rise flex flex-wrap items-end justify-between gap-4">
@@ -197,7 +232,9 @@ function Ofertas() {
               value={form.mensagem}
               onChange={(e) => setForm({ ...form, mensagem: e.target.value })}
               rows={6}
-              placeholder={"Texto da oferta, com quantas linhas precisar.\nEx.: Olá! Temos uma condição especial..."}
+              placeholder={
+                "Texto da oferta, com quantas linhas precisar.\nEx.: Olá {{nome}}! Temos uma condição especial...\n\nUse {{nome}} para o primeiro nome do cliente entrar automaticamente."
+              }
               className={`${inputClass} whitespace-pre-wrap`}
             />
           </Field>
@@ -250,6 +287,16 @@ function Ofertas() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
+                  <Button
+                    size="sm"
+                    className="bg-ember text-white hover:bg-ember/90"
+                    onClick={() => {
+                      setBuscaCliente("");
+                      setEnviandoOferta(enviandoOferta?.id === o.id ? null : o);
+                    }}
+                  >
+                    Enviar no WhatsApp
+                  </Button>
                   <Button size="sm" variant="ghost" onClick={() => abrirEdicao(o)}>
                     Editar
                   </Button>
@@ -283,6 +330,44 @@ function Ofertas() {
                 <p className="mt-2 whitespace-pre-wrap text-[13px] text-pretty text-ink-soft">
                   {o.mensagem ?? o.descricao}
                 </p>
+              )}
+
+              {enviandoOferta?.id === o.id && (
+                <div className="mt-3 rounded-lg border border-line bg-paper p-3">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                    Enviar para qual cliente?
+                  </p>
+                  <input
+                    autoFocus
+                    value={buscaCliente}
+                    onChange={(e) => setBuscaCliente(e.target.value)}
+                    placeholder="Buscar cliente pelo nome…"
+                    className="mt-1.5 w-full rounded-md border border-line bg-surface px-3 py-2 text-[13px] outline-none focus:border-ember"
+                  />
+                  <div className="mt-2 max-h-52 space-y-1 overflow-y-auto">
+                    {clientes.isLoading && (
+                      <p className="font-mono text-[11px] text-faint">Carregando clientes…</p>
+                    )}
+                    {!clientes.isLoading && clientesFiltrados.length === 0 && (
+                      <p className="font-mono text-[11px] text-faint">
+                        Nenhum cliente com WhatsApp encontrado.
+                      </p>
+                    )}
+                    {clientesFiltrados.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => enviarPara(o, c)}
+                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-black/5"
+                      >
+                        <span className="truncate">{c.nome}</span>
+                        <span className="shrink-0 font-mono text-[11px] text-faint">
+                          Enviar →
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </article>
           );
