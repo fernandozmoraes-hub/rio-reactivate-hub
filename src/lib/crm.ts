@@ -87,6 +87,7 @@ export type Trabalho = {
   id: string;
   cliente_id: string;
   nome_projeto: string;
+  produto: string | null;
   data: string;
   valor: number | null;
   observacoes: string | null;
@@ -266,6 +267,35 @@ export async function fetchTrabalhos(clienteId: string): Promise<Trabalho[]> {
     .order("data", { ascending: false });
   if (error) throw error;
   return (data ?? []) as Trabalho[];
+}
+
+export async function criarTrabalho(input: {
+  clienteId: string;
+  nomeProjeto: string;
+  produto?: string | undefined;
+  valor?: number | undefined;
+  data?: string | undefined;
+  observacoes?: string | undefined;
+}): Promise<void> {
+  const data = input.data ?? hojeISO();
+  const { error } = await supabase.from("trabalhos").insert({
+    cliente_id: input.clienteId,
+    nome_projeto: input.nomeProjeto.trim(),
+    produto: input.produto?.trim() || null,
+    valor: input.valor ?? null,
+    data,
+    observacoes: input.observacoes?.trim() || null,
+  });
+  if (error) throw error;
+
+  const { error: upErr } = await supabase
+    .from("clientes")
+    .update({
+      ultimo_trabalho: data,
+      ultimo_projeto: input.nomeProjeto.trim(),
+    })
+    .eq("id", input.clienteId);
+  if (upErr) throw upErr;
 }
 
 export async function fetchOfertas(): Promise<Oferta[]> {

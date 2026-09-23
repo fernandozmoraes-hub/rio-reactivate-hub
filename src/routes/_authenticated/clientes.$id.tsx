@@ -7,6 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { ClassChip } from "@/components/ClassChip";
 import {
   agendarContato,
+  criarTrabalho,
   definirProdutorasDoCliente,
   diasSemContato,
   fetchCliente,
@@ -65,6 +66,12 @@ function Ficha() {
   const [canal, setCanal] = useState("whatsapp");
   const [dataAgenda, setDataAgenda] = useState("");
 
+  const [nomeProjeto, setNomeProjeto] = useState("");
+  const [produtoVendido, setProdutoVendido] = useState("");
+  const [valorTrabalho, setValorTrabalho] = useState("");
+  const [dataTrabalho, setDataTrabalho] = useState(hojeISO());
+  const [obsTrabalho, setObsTrabalho] = useState("");
+
   const invalidar = () => {
     qc.invalidateQueries({ queryKey: ["cliente", id] });
     qc.invalidateQueries({ queryKey: ["interacoes", id] });
@@ -87,6 +94,29 @@ function Ficha() {
       toast.success("Contato agendado.");
       setDataAgenda("");
       invalidar();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const registrarTrabalho = useMutation({
+    mutationFn: () =>
+      criarTrabalho({
+        clienteId: id,
+        nomeProjeto,
+        produto: produtoVendido,
+        valor: valorTrabalho ? Number(valorTrabalho) : undefined,
+        data: dataTrabalho,
+        observacoes: obsTrabalho,
+      }),
+    onSuccess: () => {
+      toast.success("Trabalho registrado.");
+      setNomeProjeto("");
+      setProdutoVendido("");
+      setValorTrabalho("");
+      setDataTrabalho(hojeISO());
+      setObsTrabalho("");
+      invalidar();
+      qc.invalidateQueries({ queryKey: ["trabalhos", id] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -301,6 +331,7 @@ function Ficha() {
                   </span>
                   <span className="text-ink-soft">
                     {t.nome_projeto}
+                    {t.produto ? ` · ${t.produto}` : ""}
                     {t.valor ? ` — R$ ${Number(t.valor).toFixed(2)}` : ""}
                   </span>
                 </li>
@@ -309,6 +340,86 @@ function Ficha() {
                 <li className="text-ink-soft">Nenhum trabalho registrado.</li>
               )}
             </ul>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!nomeProjeto.trim()) {
+                  toast.error("Informe o nome do projeto.");
+                  return;
+                }
+                registrarTrabalho.mutate();
+              }}
+              className="mt-4 space-y-2 border-t border-line pt-3"
+            >
+              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                Registrar novo trabalho
+              </p>
+              <label className="block">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                  Nome do projeto
+                </span>
+                <input
+                  value={nomeProjeto}
+                  onChange={(e) => setNomeProjeto(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
+                />
+              </label>
+              <label className="block">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                  Produto vendido
+                </span>
+                <input
+                  value={produtoVendido}
+                  onChange={(e) => setProdutoVendido(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
+                />
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                    Valor (R$)
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={valorTrabalho}
+                    onChange={(e) => setValorTrabalho(e.target.value)}
+                    className="mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
+                  />
+                </label>
+                <label className="block">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                    Data
+                  </span>
+                  <input
+                    type="date"
+                    value={dataTrabalho}
+                    onChange={(e) => setDataTrabalho(e.target.value)}
+                    className="mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
+                  />
+                </label>
+              </div>
+              <label className="block">
+                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+                  Observações
+                </span>
+                <textarea
+                  value={obsTrabalho}
+                  onChange={(e) => setObsTrabalho(e.target.value)}
+                  rows={2}
+                  className="mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-[13px] outline-none focus:border-ember"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={registrarTrabalho.isPending}
+                className="rounded-md bg-ink px-3 py-2 text-[12px] font-medium text-paper disabled:opacity-50"
+              >
+                Salvar trabalho
+              </button>
+            </form>
           </section>
         </div>
       </div>
